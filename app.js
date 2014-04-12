@@ -77,6 +77,7 @@ function l(message) {
 }
 
 function logProcessInfo(p) {
+	// documentation on the process object: http://nodejs.org/api/process.html
 	l('pid: ' + p.pid);
 	l('argv: ' + p.argv);
 	l('execPath: ' + p.execPath);
