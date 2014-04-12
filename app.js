@@ -8,6 +8,7 @@ process.on('exit', function(code) {
 });
 
 if (cluster.isMaster) {
+	//cluster.isMaster documentation = http://nodejs.org/docs/latest/api/cluster.html#cluster_cluster_ismaster
 	l("starting master process");
 	logProcessInfo(process);
 	l("# of cpu: " + numCPUs);
@@ -43,6 +44,7 @@ if (cluster.isMaster) {
 		}
 	}, 10000);
 } else if (cluster.isWorker) {
+	//cluster.isWorker documentation = http://nodejs.org/docs/latest/api/cluster.html#cluster_cluster_isworker
 	var randomId = Math.floor((Math.random() * 1000) + 1);
 	l("starting worker " + randomId);
 
