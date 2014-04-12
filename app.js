@@ -24,7 +24,10 @@ function startCluster(cluster) {
 	// Fork workers.
 	for (var i = 0; i < numCPUs; i++) {
 		l("creating child process %d using cluster.fork ", i);
-		cluster.fork();
+		var worker = cluster.fork();
+
+		var message = {'i': i};
+		worker.send(message)
 	}
 
 	//register exit event, allowing us to automatically restart child process
@@ -56,6 +59,11 @@ function startCluster(cluster) {
 function startWorker(cluster) {
 	//cluster.isWorker documentation = http://nodejs.org/docs/latest/api/cluster.html#cluster_cluster_isworker
 	l("starting worker ");
+
+	// var process = require('process');
+	// process.on('message', function(message) {
+	// 	l('received message ' + message );
+	// });
 
 	// run this timer event, one time, to demonstrate that iT (number of times that this timer has fired)
 	// is a variable local to this worker, since each worker is its own process	
