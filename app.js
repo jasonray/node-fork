@@ -1,7 +1,7 @@
 var cluster = require('cluster');
 var numCPUs = require('os').cpus().length;
 var util = require('util');
-var process = require('process');
+// var process = require('process');
 
 process.on('exit', function(code) {
 	l('process about to exit ' + code);
@@ -22,12 +22,9 @@ function startCluster(cluster) {
 	l("# of cpu: " + numCPUs);
 
 	// Fork workers.
-	for (var i = 0; i < numCPUs; i++) {
+	for (var i = 0; i < 1; i++) {
 		l("creating child process %d using cluster.fork ", i);
-		var worker = cluster.fork();
-
-		var message = {'i': i};
-		worker.send(message)
+		cluster.fork();
 	}
 
 	//register exit event, allowing us to automatically restart child process
@@ -54,16 +51,27 @@ function startCluster(cluster) {
 			l("check on worker " + id + "; pid " + worker.process.pid);
 		}
 	}, 10000);
+
+	//every 1 second send message to the child workers
+	var messagenumber = 0;
+	setInterval(function() {
+		//check on workers
+		for (var id in cluster.workers) {
+			l('sending message ' + i);
+			var worker = cluster.workers[id];
+			var message = {'i': i++};
+			worker.send(message)
+		}
+	}, 1000);
 }
 
 function startWorker(cluster) {
 	//cluster.isWorker documentation = http://nodejs.org/docs/latest/api/cluster.html#cluster_cluster_isworker
 	l("starting worker ");
 
-	// var process = require('process');
-	// process.on('message', function(message) {
-	// 	l('received message ' + message );
-	// });
+	process.on('message', function(message) {
+		l('received message ' + message.i );
+	});
 
 	// run this timer event, one time, to demonstrate that iT (number of times that this timer has fired)
 	// is a variable local to this worker, since each worker is its own process	
@@ -73,24 +81,24 @@ function startWorker(cluster) {
 		l("timer fired " + iT);
 	}, 10000);
 
-	// run this interval event, every 1 second, to demonstrate that iI (number of times that this timer has fired)
+	// run this interval event, every few second, to demonstrate that iI (number of times that this timer has fired)
 	// is a variable local to this worker, since each worker is its own process	
-	var iI = 0;
-	setInterval(function() {
-		iI = iI + 1;
-		l("interval fired " + iI);
-	}, 1000);
+	// var iI = 0;
+	// setInterval(function() {
+	// 	iI = iI + 1;
+	// 	l("interval fired " + iI);
+	// }, 10000);
 
 	// output memory information about this process every min
 	// this would be a good thing to have the master report on the worker process
-	setInterval(function() {
-		logMemoryUsage(process);
-	}, 60000);
+	// setInterval(function() {
+	// 	logMemoryUsage(process);
+	// }, 60000);
 
 	// every 30 seconds run an expensive CPU-bound operation
-	// setInterval(function() {
-	// 	runExpensiveOperation();
-	// }, 30000);
+	setInterval(function() {
+		runExpensiveOperation();
+	}, 30000);
 }
 
 function runExpensiveOperation() {
