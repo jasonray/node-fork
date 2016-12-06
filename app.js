@@ -2,6 +2,8 @@ var cluster = require('cluster');
 var numCPUs = require('os').cpus().length;
 var util = require('util');
 // var process = require('process');
+var _ = require('underscore');
+var http = require('http');
 
 process.on('exit', function (code) {
     l('process about to exit ' + code);
@@ -42,74 +44,30 @@ function startCluster(cluster) {
     cluster.on('online', function (worker) {
         l('worker ' + worker.process.pid + ' is now online');
     });
-
-    //every 10 seconds, have the master report what processes it thinks it is running
-    setInterval(function () {
-        //check on workers
-        for (var id in cluster.workers) {
-            var worker = cluster.workers[id];
-            l("check on worker " + id + "; pid " + worker.process.pid);
-        }
-    }, 10000);
-
-    //every 1 second send message to the child workers
-    var messagenumber = 0;
-    setInterval(function () {
-        //check on workers
-        for (var id in cluster.workers) {
-            l('sending message ' + i);
-            var worker = cluster.workers[id];
-            var message = {'i': i++};
-            worker.send(message)
-        }
-    }, 1000);
 }
 
+var server;
+var requestCount = 0;
 function startWorker(cluster) {
-    //cluster.isWorker documentation = http://nodejs.org/docs/latest/api/cluster.html#cluster_cluster_isworker
     l("starting worker ");
 
     process.on('message', function (message) {
         l('received message ' + message.i);
     });
 
-    // run this timer event, one time, to demonstrate that iT (number of times that this timer has fired)
-    // is a variable local to this worker, since each worker is its own process
-    var iT = 0;
-    setTimeout(function () {
-        iT = iT + 1;
-        l("timer fired " + iT);
-    }, 10000);
-
-    // run this interval event, every few second, to demonstrate that iI (number of times that this timer has fired)
-    // is a variable local to this worker, since each worker is its own process
-    // var iI = 0;
-    // setInterval(function() {
-    // 	iI = iI + 1;
-    // 	l("interval fired " + iI);
-    // }, 10000);
-
-    // output memory information about this process every min
-    // this would be a good thing to have the master report on the worker process
-    // setInterval(function() {
-    // 	logMemoryUsage(process);
-    // }, 60000);
-
-    // every 30 seconds run an expensive CPU-bound operation
-    setInterval(function () {
-        runExpensiveOperation();
-    }, 30000);
+    server = startServer();
 }
 
-function runExpensiveOperation() {
-    l('start expensive operation');
-    for (var j = 0; j < 30; j++) {
-        var a = [];
-        for (var i = 0; i < 10000000; i++) {
-            a.push(i);
-        }
-    }
-    l('end expensive operation');
+function startServer() {
+    l('starting http server');
+    var srv = http.createServer(function (req, res) {
+        requestCount++;
+        l('received http request [' + requestCount + ']');
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end('okay');
+    });
+    srv.listen(8080, '127.0.0.1');
+    return srv;
 }
 
 // i created this log wrapper simply so that I can add the process info to the message
