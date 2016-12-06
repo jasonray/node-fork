@@ -1,0 +1,24 @@
+{
+  "name": "node-fork-exploratory",
+  "version": "1.0.0",
+  "description": "node-fork =========",
+  "main": "app.js",
+  "dependencies": {
+    "lodash": "^4.17.2",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonray/node-fork-exploratory.git"
+  },
+  "author": "jayraynet",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jasonray/node-fork-exploratory/issues"
+  },
+  "homepage": "https://github.com/jasonray/node-fork-exploratory#readme"
+}
